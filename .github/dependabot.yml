@@ -6,4 +6,4 @@ updates:
       interval: "weekly"
       day: "sunday"
     open-pull-requests-limit: 3
-    target-branch: "main"
+    target-branch: "develop"

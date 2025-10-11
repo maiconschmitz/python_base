@@ -1,0 +1,98 @@
+name: Construir e Publicar Imagem Docker
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '3.12.8/Dockerfile'
+      - '.github/workflows/docker-build-push.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - '3.12.8/Dockerfile'
+  release:
+    types: [ published ]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Versão da imagem (ex: 3.12.8)'
+        required: true
+        default: '3.12.8'
+      push_to_registry:
+        description: 'Publicar no Docker Hub'
+        type: boolean
+        default: true
+
+env:
+  REGISTRY: docker.io
+  IMAGE_NAME: python-base
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - name: Baixa código do repositório
+      uses: actions/checkout@v4
+
+    - name: Configura Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Efetua login no Docker Hub
+      if: github.event_name != 'pull_request' && (github.event_name == 'workflow_dispatch' && inputs.push_to_registry == 'true' || github.event_name != 'workflow_dispatch')
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Extrai metadados da imagem
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=semver,pattern={{major}}
+          type=raw,value=latest,enable={{is_default_branch}}
+          type=raw,value=${{ github.event.inputs.version || '3.12.8' }},enable={{is_default_branch}}
+
+    - name: Constrói e publica imagem Docker
+      uses: docker/build-push-action@v5
+      with:
+        context: ./3.12.8
+        file: ./3.12.8/Dockerfile
+        push: ${{ github.event_name != 'pull_request' && (github.event_name == 'workflow_dispatch' && inputs.push_to_registry == 'true' || github.event_name != 'workflow_dispatch') }}
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        platforms: linux/amd64,linux/arm64
+
+    - name: Verifica construção da imagem
+      if: github.event_name == 'pull_request'
+      run: |
+        echo "✅ Imagem construída com sucesso!"
+        echo "🏷️ Tags: ${{ steps.meta.outputs.tags }}"
+        echo "📋 Labels: ${{ steps.meta.outputs.labels }}"
+
+    - name: Notifica sucesso da publicação
+      if: success() && github.event_name != 'pull_request'
+      run: |
+        echo "✅ Imagem Docker publicada com sucesso!"
+        echo "📦 Imagem: ${{ env.REGISTRY }}/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}"
+        echo "🏷️ Tags: ${{ steps.meta.outputs.tags }}"
+        echo "🚀 A imagem está disponível no Docker Hub!"
+
+    - name: Notifica falha na construção
+      if: failure()
+      run: |
+        echo "❌ Falha ao construir ou publicar a imagem Docker"
+        echo "🔍 Verifique os logs acima para mais detalhes"
+        exit 1
