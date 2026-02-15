@@ -1,11 +1,11 @@
-# Imagem base otimizada para Python 3.12 com uv
-FROM python:3.12.8-slim
+# Imagem base otimizada para Python 3.14 com uv
+FROM python:3.14.2-slim
 
 # Metadados da imagem
 LABEL maintainer="maiconschmitz@gmail.com" \
     version="2.0" \
-    description="Imagem base Python 3.12 otimizada com uv" \
-    python.version="3.12.8"
+    description="Imagem base Python 3.14 otimizada com uv" \
+    python.version="3.14.2"
 
 # Variáveis de ambiente otimizadas
 ENV TZ=America/Sao_Paulo \
@@ -16,7 +16,7 @@ ENV TZ=America/Sao_Paulo \
     PATH="/home/app/.local/bin:$PATH" \
     UV_CACHE_DIR=/home/app/.cache/uv \
     UV_COMPILE_BYTECODE=1 \
-    UV_PYTHON=/usr/local/bin/python3.12
+    UV_PYTHON=/usr/local/bin/python3.14
 
 # Configuração do diretório de trabalho
 WORKDIR /app
