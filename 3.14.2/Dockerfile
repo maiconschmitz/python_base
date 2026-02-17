@@ -1,5 +1,5 @@
 # Imagem base otimizada para Python 3.14 com uv
-FROM python:3.14.2-slim
+FROM python:3.14.3-slim
 
 # Metadados da imagem
 LABEL maintainer="maiconschmitz@gmail.com" \
