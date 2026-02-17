@@ -12,6 +12,12 @@ A imagem é projetada com foco em:
 
 ## 🚀 Versão Disponível
 
+### Python 3.14.2 (Latest)
+
+- **Diretório**: `3.14.2/`
+- **Base**: `python:3.14.2-slim`
+- **Tag**: `python-base:3.14`
+
 ### Python 3.12.8
 
 - **Diretório**: `3.12.8/`
