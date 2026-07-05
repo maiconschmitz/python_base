@@ -1,105 +1,121 @@
-# Python Base Image 🐍
+# Python Base Image
 
-Imagem Docker, otimizada para execução de aplicações Python.
+Imagens Docker base, otimizadas para execução e preparação de aplicações Python.
 
-## 📋 Sobre o Projeto
+## Visão geral
 
-Este repositório contém uma imagem Docker base otimizada para exeução de aplicações Python.
-A imagem é projetada com foco em:
+Este repositório mantém uma imagem por linha suportada do Python.
+A lista de versões suportadas fica em `versions.txt`. Cada linha corresponde a uma pasta de versão, como `3.12/` ou `3.14/`.
 
-- **Segurança**: Execução com usuário não-root
-- **Performance**: Otimização de layers e cache
+Cada imagem usa a base oficial `python:<versão-patch>-slim`, instala o `uv`, configura um usuário não-root e deixa o ambiente pronto para ser usado como base de aplicações Python em builds locais, CI ou na VPS.
+Os diretórios usam `MAJOR.MINOR`, enquanto o `FROM` do Dockerfile mantém `MAJOR.MINOR.PATCH`; assim, o Dependabot consegue abrir PRs apenas para correções de patch dentro da mesma linha.
 
-## 🚀 Versão Disponível
+## O que a imagem entrega
 
-### Python 3.14.2 (Latest)
+- Base oficial Python slim
+- `uv` instalado como gerenciador de pacotes
+- Usuário `app` não-root
+- `WORKDIR` definido em `/app`
+- Timezone configurado para `America/Sao_Paulo`
+- Cache do `uv` em `/home/app/.cache/uv`
+- Bytecode compilado automaticamente pelo `uv`
 
-- **Diretório**: `3.14.2/`
-- **Base**: `python:3.14.2-slim`
-- **Tag**: `python-base:3.14`
+## Versões suportadas
 
-### Python 3.12.8
+A imagem para cada linha suportada é gerada a partir do diretório correspondente em `versions.txt`.
+Hoje as linhas suportadas são:
 
-- **Diretório**: `3.12.8/`
-- **Base**: `python:3.12.8-slim`
-- **Tag**: `python-base:3.12`
+- `3.12/`, usando `python:3.12.8-slim`
+- `3.14/`, usando `python:3.14.2-slim`
 
-## 🛠️ Características da Imagem
+O helper `scripts/add-version.sh` cria uma nova pasta e o Dockerfile com base na última linha já suportada.
 
-### Configurações de Ambiente
+## Build local
 
-- **Timezone**: America/Sao_Paulo
-- **Python**: Configurações otimizadas para produção
-- **Usuário**: `app` (não-root)
-- **Diretório de trabalho**: `/app`
-- **UV Cache**: Configurado para `/home/app/.cache/uv`
-- **Bytecode**: Compilação automática habilitada
+Este projeto usa [`Taskfile`](https://taskfile.dev/) para facilitar builds locais e reproduzir a lógica da pipeline.
 
-### Dependências Incluídas
+Pré-requisitos:
 
-- `curl` - Cliente HTTP
-- `ca-certificates` - Certificados SSL/TLS
-- `uv` - Gerenciador de pacotes Python moderno e ultra-rápido
+1. Docker ou Docker Desktop instalado
+2. `go-task` instalado
+3. `docker buildx` habilitado se você quiser build multi-arquitetura
 
-### Gerenciador de Pacotes UV
-
-Esta imagem utiliza o `uv`, um gerenciador de pacotes Python moderno que oferece:
-
-- ⚡ **Velocidade**: Até 10-100x mais rápido que pip
-- 🔒 **Segurança**: Resolução de dependências determinística
-- 📦 **Compatibilidade**: Totalmente compatível com pip e requirements.txt
-- 🚀 **Performance**: Instalação otimizada com cache inteligente
-
-### Otimizações Aplicadas
-
-- ✅ Redução de layers Docker
-- ✅ Limpeza completa de caches
-- ✅ Remoção de pacotes desnecessários
-- ✅ Configurações de segurança
-- ✅ Documentação detalhada
-
-## 📖 Como Usar
-
-### Construção da Imagem
+Se for a primeira vez usando buildx:
 
 ```bash
-# Construir a imagem Python 3.12.8
-cd 3.12.8
-docker build -t python-base:3.12 .
+docker buildx create --use
 ```
 
-### Uso como Base
+Comandos principais:
+
+```bash
+task
+task build VERSION=3.14
+task build-all
+task buildx VERSION=3.14
+task buildx-all
+task test
+task test VERSION=3.14
+```
+
+Observações:
+
+- `task build` gera a imagem para a arquitetura atual.
+- `task buildx` gera a imagem para `linux/amd64` e `linux/arm64`.
+- O `Taskfile` adiciona a tag `latest` automaticamente quando a versão é a última linha em `versions.txt`.
+- `task test` chama um script dedicado que constrói cada imagem e valida instalação de dependência com `uv`.
+- `task test VERSION=3.14` valida apenas uma versão específica.
+
+## Uso como imagem base
+
+Exemplo de uso em um `Dockerfile` de aplicação:
 
 ```dockerfile
-# Dockerfile da sua aplicação
-FROM python-base:3.12
+FROM maiconschmitz/python-base:3.14
 
-# Instalar dependências da aplicação
-COPY requirements.txt .
-RUN uv pip install --no-cache-dir -r requirements.txt
+WORKDIR /app
 
-# Copiar código da aplicação
+COPY requirements.txt ./
+RUN uv venv .venv && \
+    uv pip install --python .venv/bin/python --no-cache-dir -r requirements.txt
+
 COPY . .
-
-# Comando de execução
-CMD ["python", "app.py"]
+CMD ["/app/.venv/bin/python", "app.py"]
 ```
 
-### Exemplo com Docker Compose
+## Publicação e CI
 
-```yaml
-version: '3.8'
-services:
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "8000:8000"
-    environment:
-      - PYTHONPATH=/app
-    volumes:
-      - .:/app
+A publicação automatizada acontece pela workflow `.github/workflows/docker-build-push.yml`:
+
+- executa build para todas as versões listadas em `versions.txt`
+- usa `docker buildx`
+- publica imagens multi-arquitetura no Docker Hub
+- aplica a tag `latest` apenas para a última versão da lista
+
+## Dependabot
+
+O arquivo `.github/dependabot.yml` está configurado para acompanhar as imagens Docker dos diretórios atuais.
+Na prática, ele ajuda a manter cada linha existente atualizada com os `PATCH` releases da respectiva linha do Python.
+
+Isso significa:
+
+- `3.12` continua recebendo correções da linha `3.12.x`
+- `3.14` continua recebendo correções da linha `3.14.x`
+
+Quando surgir uma nova versão menor, como `3.15`, a adição precisa ser feita manualmente no repositório, criando:
+
+- a nova pasta `3.15/`
+- o novo `Dockerfile`
+- a entrada em `versions.txt`
+- a entrada correspondente no Dependabot
+- a atualização deste `README.md`
+
+Para facilitar esse fluxo, há um helper em `scripts/add-version.sh`:
+
+```bash
+./scripts/add-version.sh 3.15 3.15.0
 ```
 
-> 💡 **Dica**: Use esta imagem como base para seus projetos Python e mantenha-a atualizada para garantir segurança e performance.
+A validação ponta a ponta fica em `scripts/test-builds.sh` e é a mesma usada por `task test`.
+
+O arquivo `AGENTS.md` contém orientações de manutenção mais detalhadas para agentes e colaboradores.
