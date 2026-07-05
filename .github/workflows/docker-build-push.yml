@@ -23,6 +23,7 @@ on:
 
 env:
   REGISTRY: docker.io
+  IMAGE_NAMESPACE: maiconschmitz
   IMAGE_NAME: python-base
 
 jobs:
@@ -82,7 +83,7 @@ jobs:
       id: meta
       uses: docker/metadata-action@v5
       with:
-        images: ${{ env.REGISTRY }}/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/${{ env.IMAGE_NAME }}
         tags: |
           type=ref,event=branch,suffix=-${{ matrix.python-version }}
           type=ref,event=pr,suffix=-${{ matrix.python-version }}
@@ -113,7 +114,7 @@ jobs:
       if: success() && github.event_name != 'pull_request'
       run: |
         echo "✅ Imagem Docker ${{ matrix.python-version }} publicada com sucesso!"
-        echo "📦 Imagem: ${{ env.REGISTRY }}/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}"
+        echo "📦 Imagem: ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/${{ env.IMAGE_NAME }}"
         echo "🏷️ Tags: ${{ steps.meta.outputs.tags }}"
         echo "🚀 A imagem está disponível no Docker Hub!"
 
