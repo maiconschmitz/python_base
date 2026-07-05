@@ -1,7 +1,7 @@
 version: 2
 updates:
   - package-ecosystem: "docker"
-    directory: "/3.12.8"
+    directory: "/3.12"
     schedule:
       interval: "weekly"
       day: "sunday"
@@ -12,7 +12,7 @@ updates:
         update-types: ["version-update:semver-major", "version-update:semver-minor"]
 
   - package-ecosystem: "docker"
-    directory: "/3.14.2"
+    directory: "/3.14"
     schedule:
       interval: "weekly"
       day: "sunday"

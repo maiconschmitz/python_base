@@ -1,13 +1,16 @@
 # Imagem base otimizada para Python 3.14 com uv
 FROM python:3.14.2-slim
 
+# Versao da linha Python suportada por este diretorio
+ARG PYTHON_VERSION=3.14
+
 # Metadados da imagem
 LABEL maintainer="maiconschmitz@gmail.com" \
     version="2.0" \
-    description="Imagem base Python 3.14 otimizada com uv" \
-    python.version="3.14.2"
+    description="Imagem base Python ${PYTHON_VERSION} otimizada com uv" \
+    python.version="${PYTHON_VERSION}"
 
-# Variáveis de ambiente otimizadas
+# Variaveis de ambiente otimizadas
 ENV TZ=America/Sao_Paulo \
     PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
@@ -18,22 +21,22 @@ ENV TZ=America/Sao_Paulo \
     UV_COMPILE_BYTECODE=1 \
     UV_PYTHON=/usr/local/bin/python3.14
 
-# Configuração do diretório de trabalho
+# Configuracao do diretorio de trabalho
 WORKDIR /app
 
-# Instalação otimizada em uma única camada
+# Instalacao otimizada em uma unica camada
 RUN set -eux; \
-    # Atualiza e instala apenas dependências essenciais
+    # Atualiza e instala apenas dependencias essenciais
     apt-get update && \
     apt-get install -y --no-install-recommends \
     curl \
     ca-certificates && \
     # Instala uv diretamente
     curl -LsSf https://astral.sh/uv/install.sh | sh && \
-    # Cria usuário não-root
+    # Cria usuario nao-root
     groupadd -r app && \
     useradd --no-log-init -r -g app -m -d /home/app app && \
-    # Configura permissões e cache do uv
+    # Configura permissoes e cache do uv
     mkdir -p /home/app/.cache/uv && \
     chown -R app:app /home/app /app && \
     chmod 755 /home/app /home/app/.cache/uv && \

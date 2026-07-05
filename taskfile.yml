@@ -1,0 +1,64 @@
+version: '3'
+
+vars:
+  IMAGE_NAME: "python-base"
+  USERNAME: "maiconschmitz"
+  LATEST_VERSION:
+    sh: tail -n 1 versions.txt
+  VERSIONS:
+    sh: awk 'NF && $1 !~ /^#/' versions.txt | tr '\n' ' '
+
+tasks:
+  default:
+    desc: Lista todos os comandos disponiveis
+    cmds:
+      - task --list
+
+  build:
+    desc: Realiza o build de uma unica versao (arquitetura atual). Exemplo= task build VERSION=3.14
+    requires:
+      vars: [VERSION]
+    cmds:
+      - echo "Construindo imagem local para a versao {{.VERSION}}..."
+      - >
+        docker build
+        -t {{.USERNAME}}/{{.IMAGE_NAME}}:{{.VERSION}}
+        {{if eq .VERSION .LATEST_VERSION}}-t {{.USERNAME}}/{{.IMAGE_NAME}}:latest{{end}}
+        ./{{.VERSION}}
+
+  build-all:
+    desc: Realiza o build de todas as versoes
+    cmds:
+      - |
+        while IFS= read -r VERSION; do
+          [ -n "$VERSION" ] || continue
+          case "$VERSION" in \#*) continue ;; esac
+          task build VERSION="$VERSION"
+        done < versions.txt
+
+  buildx:
+    desc: Realiza o build multi-arquitetura de uma versao. Exemplo= task buildx VERSION=3.14
+    requires:
+      vars: [VERSION]
+    cmds:
+      - echo "Construindo imagens multi-arquitetura (amd64, arm64) para a versao {{.VERSION}}..."
+      - >
+        docker buildx build --platform linux/amd64,linux/arm64
+        -t {{.USERNAME}}/{{.IMAGE_NAME}}:{{.VERSION}}
+        {{if eq .VERSION .LATEST_VERSION}}-t {{.USERNAME}}/{{.IMAGE_NAME}}:latest{{end}}
+        ./{{.VERSION}}
+
+  buildx-all:
+    desc: Realiza o build multi-arquitetura para todas as versoes
+    cmds:
+      - |
+        while IFS= read -r VERSION; do
+          [ -n "$VERSION" ] || continue
+          case "$VERSION" in \#*) continue ;; esac
+          task buildx VERSION="$VERSION"
+        done < versions.txt
+
+  test:
+    desc: Executa a validacao ponta a ponta das imagens suportadas. Exemplo= task test VERSION=3.14
+    cmds:
+      - ./scripts/test-builds.sh{{if .VERSION}} {{.VERSION}}{{end}}
