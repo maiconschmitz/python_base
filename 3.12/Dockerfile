@@ -3,6 +3,8 @@ FROM python:3.12.8-slim
 
 # Versao da linha Python suportada por este diretorio
 ARG PYTHON_VERSION=3.12
+ARG APP_UID=1000
+ARG APP_GID=1000
 
 # Metadados da imagem
 LABEL maintainer="maiconschmitz@gmail.com" \
@@ -34,8 +36,8 @@ RUN set -eux; \
     # Instala uv diretamente
     curl -LsSf https://astral.sh/uv/install.sh | sh && \
     # Cria usuario nao-root
-    groupadd -r app && \
-    useradd --no-log-init -r -g app -m -d /home/app app && \
+    groupadd --gid "${APP_GID}" app && \
+    useradd --no-log-init --uid "${APP_UID}" --gid "${APP_GID}" -m -d /home/app app && \
     # Configura permissoes e cache do uv
     mkdir -p /home/app/.cache/uv && \
     chown -R app:app /home/app /app && \

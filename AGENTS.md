@@ -53,4 +53,5 @@ O helper `scripts/test-builds.sh` cria um app temporario, constroi cada imagem e
 - Nao reverta mudancas do usuario.
 - Mantenha os Dockerfiles consistentes entre si, mudando apenas o que varia por linha.
 - Preserve o uso de `slim`, `uv`, `TZ=America/Sao_Paulo`, usuario `app` e `WORKDIR /app`, a menos que exista um motivo claro para mudar.
+- Preserve o UID e o GID `1000` do usuario `app`. Os volumes persistentes dos ambientes de producao dependem dessa identidade numerica estavel; os testes devem validar tanto o usuario efetivo quanto a entrada `app`.
 - Se mexer na pipeline, confira se os filtros de caminho e a matriz de versoes continuam alinhados com `versions.txt`.

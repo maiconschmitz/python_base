@@ -50,6 +50,12 @@ EOF
   image="python-base-test:$version"
   echo "Validando build ponta a ponta para Python $version..."
   docker build --pull -t "$image" "$ROOT_DIR/$version"
+  docker run --rm "$image" sh -c '
+    test "$(id -u)" = 1000
+    test "$(id -g)" = 1000
+    test "$(id -u app)" = 1000
+    test "$(id -g app)" = 1000
+  '
   docker run --rm -v "$appdir":/app -w /app "$image" sh -c '
     set -e
     python --version

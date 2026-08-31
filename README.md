@@ -15,6 +15,7 @@ Os diretórios usam `MAJOR.MINOR`, enquanto o `FROM` do Dockerfile mantém `MAJO
 - Base oficial Python slim
 - `uv` instalado como gerenciador de pacotes
 - Usuário `app` não-root
+- UID e GID estáveis em `1000`, compatíveis com volumes persistentes dos hosts
 - `WORKDIR` definido em `/app`
 - Timezone configurado para `America/Sao_Paulo`
 - Cache do `uv` em `/home/app/.cache/uv`
