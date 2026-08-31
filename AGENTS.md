@@ -28,6 +28,7 @@ O foco das imagens e permitir que builds de aplicacoes Python acontecam na VPS s
 - O `FROM` do Dockerfile deve usar uma versao `MAJOR.MINOR.PATCH`, como `python:3.14.2-slim`, para permitir PRs de patch do Dependabot.
 - A variavel `PYTHON_VERSION` no Dockerfile deve bater com a pasta da imagem.
 - A tag `latest` acompanha a ultima linha listada em `versions.txt`.
+- As tags estaveis de linha (`3.12`, `3.14`) e `latest` sao publicadas somente pela branch `main`; pushes em `develop` geram apenas tags identificadas pela branch.
 - `versions.txt` e a fonte de verdade para o conjunto suportado e e lido pelo `Taskfile`, pela workflow e pelo helper de scaffolding.
 - O Dependabot deve acompanhar `PATCH` updates apenas nas linhas ja existentes.
 - Novas `MINOR` versions nao surgem automaticamente: crie a nova pasta e atualize a documentacao.

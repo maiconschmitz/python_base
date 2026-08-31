@@ -88,8 +88,8 @@ jobs:
           type=ref,event=branch,suffix=-${{ matrix.python-version }}
           type=ref,event=pr,suffix=-${{ matrix.python-version }}
           type=semver,pattern={{version}},suffix=-${{ matrix.python-version }}
-          type=raw,value=${{ matrix.python-version }}
-          type=raw,value=latest,enable=${{ matrix.python-version == needs.prepare.outputs.latest_version }}
+          type=raw,value=${{ matrix.python-version }},enable=${{ github.ref == 'refs/heads/main' }}
+          type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' && matrix.python-version == needs.prepare.outputs.latest_version }}
 
     - name: Constrói e publica imagem Docker
       uses: docker/build-push-action@v5
