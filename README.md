@@ -92,6 +92,7 @@ A publicação automatizada acontece pela workflow `.github/workflows/docker-bui
 - usa `docker buildx`
 - publica imagens multi-arquitetura no Docker Hub
 - aplica a tag `latest` apenas para a última versão da lista
+- publica as tags estáveis de linha e `latest` somente a partir da branch `main`; `develop` permanece isolada em tags próprias
 
 ## Dependabot
 
