@@ -25,10 +25,11 @@ O foco das imagens e permitir que builds de aplicacoes Python acontecam na VPS s
 ## Convencoes do repositorio
 
 - O diretorio da imagem deve corresponder a linha `MAJOR.MINOR` do Python, como `3.14`.
-- O `FROM` do Dockerfile deve usar uma versao `MAJOR.MINOR.PATCH`, como `python:3.14.2-slim`, para permitir PRs de patch do Dependabot.
+- O `FROM` do Dockerfile deve usar uma versao exata `MAJOR.MINOR.PATCH`, como `python:3.14.7-slim`, para permitir PRs de patch do Dependabot.
+- Linhas ainda nao lancadas podem usar temporariamente uma versao `MAJOR.MINOR.PATCHrcN`, como `python:3.15.0rc2-slim`; documente claramente que a imagem e preview e atualize para a final assim que ela existir.
 - A variavel `PYTHON_VERSION` no Dockerfile deve bater com a pasta da imagem.
 - A tag `latest` acompanha a ultima linha listada em `versions.txt`.
-- As tags estaveis de linha (`3.12`, `3.14`) e `latest` sao publicadas somente pela branch `main`; pushes em `develop` geram apenas tags identificadas pela branch.
+- As tags de linha (`3.12`, `3.14`, `3.15`) e `latest` sao publicadas somente pela branch `main`; pushes em `develop` geram apenas tags identificadas pela branch. Se a ultima linha estiver em pre-lancamento, documente que `latest` tambem e preview.
 - `versions.txt` e a fonte de verdade para o conjunto suportado e e lido pelo `Taskfile`, pela workflow e pelo helper de scaffolding.
 - O Dependabot deve acompanhar `PATCH` updates apenas nas linhas ja existentes.
 - Novas `MINOR` versions nao surgem automaticamente: crie a nova pasta e atualize a documentacao.
@@ -38,14 +39,14 @@ O foco das imagens e permitir que builds de aplicacoes Python acontecam na VPS s
 Use `task` para reproduzir os builds da imagem:
 
 - `task` lista os comandos disponiveis.
-- `task build VERSION=3.14` constroi uma linha especifica.
+- `task build VERSION=3.15` constroi uma linha especifica.
 - `task build-all` constroi todas as linhas.
-- `task buildx VERSION=3.14` faz build multi-arquitetura.
+- `task buildx VERSION=3.15` faz build multi-arquitetura.
 - `task buildx-all` roda todas as linhas em multi-arquitetura.
 - `task test` executa a validacao ponta a ponta em todas as linhas suportadas.
-- `task test VERSION=3.14` executa a validacao em apenas uma linha.
+- `task test VERSION=3.15` executa a validacao em apenas uma linha.
 
-O helper `scripts/add-version.sh` cria a nova pasta, deriva o Dockerfile da ultima linha suportada e recompõe o Dependabot.
+O helper `scripts/add-version.sh` cria a nova pasta, deriva o Dockerfile da ultima linha suportada e recompõe o Dependabot. O patch pode ser estavel (`3.16.0`) ou pre-lancamento (`3.16.0a1`, `3.16.0b1`, `3.16.0rc1`).
 O helper `scripts/test-builds.sh` cria um app temporario, constroi cada imagem e instala uma dependencia simples com `uv` dentro dela.
 
 ## O que observar ao editar

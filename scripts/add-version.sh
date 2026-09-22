@@ -3,7 +3,7 @@ set -euo pipefail
 
 if [[ $# -ne 2 ]]; then
   echo "Uso: $0 <linha-python> <patch-inicial>" >&2
-  echo "Exemplo: $0 3.15 3.15.0" >&2
+  echo "Exemplo: $0 3.16 3.16.0a1" >&2
   exit 1
 fi
 
@@ -15,8 +15,8 @@ if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+$ ]]; then
   exit 1
 fi
 
-if [[ ! "$PATCH_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-  echo "Patch invalido: use o formato MAJOR.MINOR.PATCH, como 3.15.0" >&2
+if [[ ! "$PATCH_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+((a|b|rc)[0-9]+)?$ ]]; then
+  echo "Patch invalido: use MAJOR.MINOR.PATCH, opcionalmente com a, b ou rc, como 3.15.0rc2" >&2
   exit 1
 fi
 
@@ -51,7 +51,7 @@ fi
 
 mkdir -p "$TARGET_DIR"
 sed \
-  -e "s/python:$TEMPLATE_VERSION\\.[0-9][0-9]*-slim/python:$PATCH_VERSION-slim/g" \
+  -e "s|^FROM python:.*-slim$|FROM python:$PATCH_VERSION-slim|" \
   -e "s/Python $TEMPLATE_VERSION/Python $VERSION/g" \
   -e "s/PYTHON_VERSION=$TEMPLATE_VERSION/PYTHON_VERSION=$VERSION/g" \
   -e "s/python$TEMPLATE_VERSION/python$VERSION/g" \
