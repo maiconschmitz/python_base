@@ -16,7 +16,7 @@ if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+$ ]]; then
 fi
 
 if [[ ! "$PATCH_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+((a|b|rc)[0-9]+)?$ ]]; then
-  echo "Patch invalido: use MAJOR.MINOR.PATCH, opcionalmente com a, b ou rc, como 3.15.0rc2" >&2
+  echo "Patch invalido: use MAJOR.MINOR.PATCH, opcionalmente com a, b ou rc, como 3.16.0rc1" >&2
   exit 1
 fi
 

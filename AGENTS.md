@@ -25,8 +25,8 @@ O foco das imagens e permitir que builds de aplicacoes Python acontecam na VPS s
 ## Convencoes do repositorio
 
 - O diretorio da imagem deve corresponder a linha `MAJOR.MINOR` do Python, como `3.14`.
-- O `FROM` do Dockerfile deve usar uma versao exata `MAJOR.MINOR.PATCH`, como `python:3.14.7-slim`, para permitir PRs de patch do Dependabot.
-- Linhas ainda nao lancadas podem usar temporariamente uma versao `MAJOR.MINOR.PATCHrcN`, como `python:3.15.0rc2-slim`; documente claramente que a imagem e preview e atualize para a final assim que ela existir.
+- O `FROM` do Dockerfile deve usar uma versao exata `MAJOR.MINOR.PATCH`, como `python:3.14.8-slim`, para permitir PRs de patch do Dependabot.
+- Linhas ainda nao lancadas podem usar temporariamente uma versao `MAJOR.MINOR.PATCHrcN`, como `python:3.16.0rc1-slim`; documente claramente que a imagem e preview e atualize para a final assim que ela existir.
 - A variavel `PYTHON_VERSION` no Dockerfile deve bater com a pasta da imagem.
 - A tag `latest` acompanha a ultima linha listada em `versions.txt`.
 - As tags de linha (`3.12`, `3.14`, `3.15`) e `latest` sao publicadas somente pela branch `main`; pushes em `develop` geram apenas tags identificadas pela branch. Se a ultima linha estiver em pre-lancamento, documente que `latest` tambem e preview.

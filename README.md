@@ -26,11 +26,9 @@ Os diretórios usam `MAJOR.MINOR`, enquanto o `FROM` do Dockerfile mantém `MAJO
 A imagem para cada linha suportada é gerada a partir do diretório correspondente em `versions.txt`.
 Hoje as linhas suportadas são:
 
-- `3.12/`, usando `python:3.12.14-slim`
-- `3.14/`, usando `python:3.14.7-slim`
-- `3.15/`, usando `python:3.15.0rc2-slim` (preview até o lançamento final do Python 3.15)
-
-O Python 3.15.0 final está previsto para 1º de outubro de 2026. Enquanto a linha usa um release candidate, a imagem `3.15` e a tag `latest` também devem ser consideradas previews. O Dependabot acompanha a imagem base e poderá propor a atualização para a versão final quando ela estiver disponível.
+- `3.12/`, usando `python:3.12.15-slim`
+- `3.14/`, usando `python:3.14.8-slim`
+- `3.15/`, usando `python:3.15.0-slim`
 
 O helper `scripts/add-version.sh` cria uma nova pasta e o Dockerfile com base na última linha já suportada.
 
@@ -106,7 +104,7 @@ Isso significa:
 
 - `3.12` continua recebendo correções da linha `3.12.x`
 - `3.14` continua recebendo correções da linha `3.14.x`
-- `3.15` acompanha os releases da linha `3.15.x`; inicialmente, usa o release candidate `3.15.0rc2`
+- `3.15` continua recebendo correções da linha `3.15.x`
 
 Quando surgir uma nova versão menor, como `3.16`, a adição precisa ser feita manualmente no repositório, criando:
 

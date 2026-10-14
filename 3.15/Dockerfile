@@ -1,5 +1,5 @@
 # Imagem base otimizada para Python 3.15 com uv
-FROM python:3.15.0rc2-slim
+FROM python:3.15.0-slim
 
 # Versao da linha Python suportada por este diretorio
 ARG PYTHON_VERSION=3.15
